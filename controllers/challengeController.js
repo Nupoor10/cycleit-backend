@@ -6,7 +6,7 @@ const getAllChallenges = async(req, res) => {
         const userID = req.user;
         const userChallenges = await EnrolledChallenge.find({user: userID});
         const challengeIDs = userChallenges.map((item) => item.challenge);
-        const allChallenges = await Challenge.find().where('_id').nin(challengeIDs);
+        const allChallenges = await Challenge.find({ _id: { $nin: challengeIDs}});
 
         if(allChallenges.length === 0) {
             return res.status(204).json({

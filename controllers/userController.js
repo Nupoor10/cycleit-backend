@@ -118,9 +118,12 @@ const incrementPointsAndBadge = async(userID, pointsToAdd) => {
 
         const awardedBadgeIDs = user.badges ?? [];
 
-        const nextBadge = await Badge.findOne()
-            .where('points').lte(user.totalPoints)
-            .where('_id').nin(awardedBadgeIDs);
+        const nextBadge = await Badge.findOne({
+            $and: [
+                {points: { $lte: user.totalPoints}},
+                {_id: { $nin: awardedBadgeIDs}}
+            ]   
+        })
       
         if (nextBadge) {
             user.badges.push(nextBadge);
@@ -135,8 +138,12 @@ const incrementPointsAndBadge = async(userID, pointsToAdd) => {
 
 const getLeaderBoardStats = async(req,res) => {
     try {       
-        const stats = (await User.aggregate().sort({ totalPoints: 'desc' }).limit(10))?.map((item, index) => {return {rank: index + 1, user: item.username, totalPoints: item.totalPoints}});
-      
+        const stats = await User.aggregate([
+            { $sort: { totalPoints: -1}},
+            { $limit : 10 },
+            { $project: { username : 1, totalPoints: 1, _id: 0}}
+        ]);
+
         return res.status(200).json({
             message: 'Stats fetched successfully',
             data: stats,
