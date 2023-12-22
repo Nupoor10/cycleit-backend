@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const Badge = require('./badgeModel');
+const Schema = mongoose.Schema
 
 const userSchema = new Schema ({
     username: {
@@ -14,6 +15,20 @@ const userSchema = new Schema ({
     password: {
         type: String,
         required: true
+    },
+    totalPoints: {
+        type: Number
+    },
+    badges: [{
+        type: mongoose.Types.ObjectId,
+        ref: Badge
+    }],
+    totalBadges: {
+        type: Number,
+        virtual: true,
+        get() {
+          return this.badges.length;
+        },
     }
 }, {timestamps: true});
 

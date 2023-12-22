@@ -1,5 +1,6 @@
 const Challenge = require('../models/challengeModel');
 const EnrolledChallenge = require('../models/enrolledChallengeModel');
+const { incrementPointsAndBadge } = require('./userController')
 
 const enrollChallenge = async(req, res) => {
     try {
@@ -71,6 +72,8 @@ const completeChallenge = async(req, res) => {
         userChallenge.completionDate = new Date();
 
         await userChallenge.save();
+
+        await incrementPointsAndBadge(userID, userChallenge.challenge.points);
 
         return res.status(200).json({
             message: 'Challenge completed successfully',
