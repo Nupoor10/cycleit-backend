@@ -12,16 +12,15 @@ const addRecycledItem = async(req,res) => {
         const categoryArray = ["paper", "glass", "plastic", "metal", "organic", "ewaste"];
 
         let categoryName;
-        const response = await generatePrompt(`Classify given object: ${object}, into only one of these categories: paper, organic, ewaste, glass, metal, plastic. Return answer as the category in single word only`);
-
+        let response = await generatePrompt(`Classify given object: ${object}, into only one of these categories: paper, organic, ewaste, glass, metal, plastic. Return answer as the category in single word only`);
+        response = response.toLowerCase().replace(/[^a-zA-Z0-9]/g, '')
         for (const item of categoryArray) {
-            if (response.toLowerCase().includes(item)) {
+            if (response.includes(item)) {
                 categoryName = item;
                 break;
             }
         }
-
-        const categoryItem = await Category.findOne({category: categoryName.toLowerCase()});
+        const categoryItem = await Category.findOne({category: categoryName});
         if(!categoryItem) {
             return res.status(404).json({
                 message: 'Category not found'
